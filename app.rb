@@ -16,6 +16,7 @@ class ShortUrl < Ohm::Model
   attribute :redirect_count, Type::Integer
   index :code
 
+
   def before_save
     self.start_date = Time.now
     self.code ||= generate_code

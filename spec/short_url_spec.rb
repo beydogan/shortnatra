@@ -24,4 +24,10 @@ RSpec.describe ShortUrl, type: :model do
       expect(url.code).to eq "code3"
     end
   end
+
+  it "sets start_date before save" do
+    url = ShortUrl.new
+    url.save
+    expect(url.start_date).not_to eq nil
+  end
 end
