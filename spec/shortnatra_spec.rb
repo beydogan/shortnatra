@@ -82,15 +82,26 @@ RSpec.describe ShortNatra do
   end
 
   describe "GET /:shortcode/stats" do
-    context "with valid shortcode" do
-      it "returns shortcode stats" do
-        pending "TODO"
+      context "with valid shortcode" do
+        it "returns shortcode stats" do
+          start_date = Time.now - 5*60
+          last_seen_date = Time.now - 2*60
+          url = ShortUrl.create(url: "http://www.google.com", last_seen_date: last_seen_date, start_date: start_date, redirect_count: 5)
+          get "/#{url.shortcode}/stats"
+          expect(last_response.status).to eq 200
+          expect(last_response).to eq({
+            "startDate": start_date.utc.iso8601.to_s,
+            "lastSeenDate": last_seen_date.utc.iso8601.to_s,
+            "redirectCount": 5
+          }.to_json.to_s) #convert json then string to easy comparison
+        end
+      end
+      context "with invalid shortcode" do
+        it "returns 404 not found" do
+          get "/randomcode/stats"
+          expect(last_response.status).to eq 404
+          expect(last_response.body).to include "The shortcode cannot be found in the system"
+        end
       end
     end
-    context "with invalid shortcode" do
-      it "returns 404 not found" do
-        pending "TODO"
-      end
-    end
-  end
 end
