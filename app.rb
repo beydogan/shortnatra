@@ -17,7 +17,7 @@ class ShortUrl < Ohm::Model
   index :shortcode
 
   def before_save
-    self.start_date = Time.now.utc.iso8601
+    self.start_date ||= Time.now.utc.iso8601
     self.shortcode ||= generate_shortcode
   end
 
@@ -82,6 +82,22 @@ class ShortNatra < Sinatra::Base
     end
   end
 
+  get '/:shortcode/stats' do
+    content_type :json
+    url = ShortUrl.find(shortcode: params[:shortcode]).first
+
+    if url.nil?
+      status 404
+      {status: "error", message: "The shortcode cannot be found in the system"}.to_json
+    else
+      {
+        "startDate": url.start_date,
+        "lastSeenDate": url.last_seen_date,
+        "redirectCount": url.redirect_count
+      }.to_json
+    end
+  end
+
   get '/:shortcode' do
     url = ShortUrl.find(shortcode: params[:shortcode]).first
 
@@ -95,4 +111,5 @@ class ShortNatra < Sinatra::Base
       redirect url.url
     end
   end
+
 end
