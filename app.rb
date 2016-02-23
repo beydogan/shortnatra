@@ -39,4 +39,45 @@ class ShortNatra < Sinatra::Base
     Ohm.redis = Redic.new("redis://127.0.0.1:6379")
   end
 
+  helpers do
+    def code_valid?(code)
+      code.match(/^[0-9a-zA-Z_]{4,}$/)
+    end
+
+    def url_valid?(url)
+      url
+    end
+  end
+
+  post '/shorten' do
+    content_type :json
+
+    if url_valid? params[:url]
+      if params[:code]
+        if code_valid? params[:code]
+          if ShortUrl.find(code: params[:code]).first
+            status 409
+            {status: "error", message: "The the desired shortcode is already in use. **Shortcodes are case-sensitive**."}.to_json
+          else
+            status 201
+            url = ShortUrl.new(code: params[:code], url: params[:url])
+            url.save
+            {shortcode: url.code}.to_json
+          end
+        else
+          status 422
+          {status: "error", message: "The shortcode fails to meet the following regexp: ```^[0-9a-zA-Z_]{4,}$```."}.to_json
+        end
+      else
+        status 201
+        url = ShortUrl.new(url: params[:url])
+        url.save
+        {shortcode: url.code}.to_json
+      end
+    else
+      status 400
+      {status: "error", message: "```url``` is not present"}.to_json
+    end
+  end
+
 end
