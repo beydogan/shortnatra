@@ -44,7 +44,7 @@ RSpec.describe ShortUrl, type: :model do
     it "updates last seen date" do
       Timecop.freeze(Time.now)
       url.hit!
-      expect(url.last_seen_date).to eq Time.now
+      expect(url.last_seen_date).to eq Time.now.utc.iso8601
     end
 
     it "saves changes" do

@@ -64,11 +64,11 @@ RSpec.describe ShortNatra do
       end
 
       it "updates url stats" do
-        Timecop.freeze(Time.now)
+        Timecop.freeze(Time.now.utc.iso8601)
         get "/#{url.shortcode}"
         saved_url = ShortUrl.find(shortcode: url.shortcode).first
         expect(saved_url.redirect_count).to eq 1
-        expect(saved_url.last_seen_date.to_s).to eq Time.now.to_s # using #to_s to workaround nanosecond comparison
+        expect(saved_url.last_seen_date).to eq Time.now.utc.iso8601 # using #to_s to workaround nanosecond comparison
       end
     end
 
