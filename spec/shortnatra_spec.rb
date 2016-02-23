@@ -53,29 +53,30 @@ RSpec.describe ShortNatra do
 
   describe "GET /:shortcode" do
     context "with valid shortcode" do
-      let(:url){ ShortUrl.create(url: "http://www.google.com")}
-      before :each do
-        get "/#{url.code}"
-      end
+      let!(:url){ ShortUrl.create(url: "http://www.google.com")}
 
       it "returns 302 and redirect" do
+        get "/#{url.code}"
         expect(last_response.status).to eq 302
-        expect(last_response).to redirect_to "http://www.google.com"
+        expect(last_response).to be_redirect
+        follow_redirect!
+        expect(last_request.url).to eq "http://www.google.com/"
       end
 
       it "updates url stats" do
         Timecop.freeze(Time.now)
-        url = ShortUrl.find(code: url.code).first
-        expect(url.redirect_count).to eq 1
-        expect(url.last_seen_date).to eq Time.now
+        get "/#{url.code}"
+        saved_url = ShortUrl.find(code: url.code).first
+        expect(saved_url.redirect_count).to eq 1
+        expect(saved_url.last_seen_date.to_s).to eq Time.now.to_s # using #to_s to workaround nanosecond comparison
       end
     end
 
     context "with invalid shortcode" do
       it "returns 404 not found" do
         get "/randomcode"
-        expect(last_response.status).to eq 0
-        expect(last_response.body).to have_content "The shortcode cannot be found in the system"
+        expect(last_response.status).to eq 404
+        expect(last_response.body).to include "The shortcode cannot be found in the system"
       end
     end
   end

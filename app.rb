@@ -66,8 +66,7 @@ class ShortNatra < Sinatra::Base
             {status: "error", message: "The the desired shortcode is already in use. **Shortcodes are case-sensitive**."}.to_json
           else
             status 201
-            url = ShortUrl.new(code: params[:code], url: params[:url])
-            url.save
+            url = ShortUrl.create(code: params[:code], url: params[:url])
             {shortcode: url.code}.to_json
           end
         else
@@ -76,8 +75,7 @@ class ShortNatra < Sinatra::Base
         end
       else
         status 201
-        url = ShortUrl.new(url: params[:url])
-        url.save
+        url = ShortUrl.create(url: params[:url])
         {shortcode: url.code}.to_json
       end
     else
@@ -86,4 +84,17 @@ class ShortNatra < Sinatra::Base
     end
   end
 
+  get '/:shortcode' do
+    url = ShortUrl.find(code: params[:shortcode]).first
+
+    if url.nil?
+      content_type :json
+      status 404
+      {status: "error", message: "The shortcode cannot be found in the system"}.to_json
+    else
+      url.hit!
+      status 302
+      redirect url.url
+    end
+  end
 end
