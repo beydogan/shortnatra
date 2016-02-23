@@ -73,7 +73,9 @@ RSpec.describe ShortNatra do
 
     context "with invalid shortcode" do
       it "returns 404 not found" do
-        pending "TODO"
+        get "/randomcode"
+        expect(last_response.status).to eq 0
+        expect(last_response.body).to have_content "The shortcode cannot be found in the system"
       end
     end
   end
