@@ -22,6 +22,12 @@ class ShortUrl < Ohm::Model
     self.code ||= generate_code
   end
 
+  def hit!
+    self.last_seen_date = Time.now
+    self.redirect_count += 1
+    self.save
+  end
+
   private
     def generate_code
       code = SecureRandom.hex(6)

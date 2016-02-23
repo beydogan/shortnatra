@@ -30,4 +30,27 @@ RSpec.describe ShortUrl, type: :model do
     url.save
     expect(url.start_date).not_to eq nil
   end
+
+  describe "hit!" do
+    let(:url) { ShortUrl.create(url: "http://www.google.com") }
+
+    it "updates redirect count" do
+      url.hit!
+      expect(url.redirect_count).to eq 1
+      url.hit!
+      expect(url.redirect_count).to eq 2
+    end
+
+    it "updates last seen date" do
+      Timecop.freeze(Time.now)
+      url.hit!
+      expect(url.last_seen_date).to eq Time.now
+    end
+
+    it "saves changes" do
+      url.hit!
+      saved_url = ShortUrl.find(code: url.code).first
+      expect(saved_url.redirect_count).to eq 1
+    end
+  end
 end

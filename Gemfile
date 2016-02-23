@@ -11,4 +11,5 @@ group :test do
   gem "rack-test"
   gem "ffaker"
   gem "database_cleaner"
+  gem "timecop"
 end
