@@ -9,17 +9,17 @@ class ShortUrl < Ohm::Model
   include Ohm::DataTypes
   include Ohm::Callbacks
 
-  attribute :code
+  attribute :shortcode
   attribute :url
   attribute :start_date, Type::Time
   attribute :last_seen_date, Type::Time
   attribute :redirect_count, Type::Integer
-  index :code
+  index :shortcode
 
 
   def before_save
     self.start_date = Time.now
-    self.code ||= generate_code
+    self.shortcode ||= generate_shortcode
   end
 
   def hit!
@@ -29,14 +29,13 @@ class ShortUrl < Ohm::Model
   end
 
   private
-    def generate_code
-      code = SecureRandom.hex(6)
-      while ShortUrl.find(code: code).first
-        code = SecureRandom.hex(6)
+    def generate_shortcode
+      shortcode = SecureRandom.hex(3)
+      while ShortUrl.find(shortcode: shortcode).first
+        shortcode = SecureRandom.hex(3)
       end
-      code
+      shortcode
     end
-
 end
 
 class ShortNatra < Sinatra::Base
@@ -46,8 +45,8 @@ class ShortNatra < Sinatra::Base
   end
 
   helpers do
-    def code_valid?(code)
-      code.match(/^[0-9a-zA-Z_]{4,}$/)
+    def shortcode_valid?(shortcode)
+      shortcode.match(/^[0-9a-zA-Z_]{4,}$/)
     end
 
     def url_valid?(url)
@@ -59,15 +58,15 @@ class ShortNatra < Sinatra::Base
     content_type :json
 
     if url_valid? params[:url]
-      if params[:code]
-        if code_valid? params[:code]
-          if ShortUrl.find(code: params[:code]).first
+      if params[:shortcode]
+        if shortcode_valid? params[:shortcode]
+          if ShortUrl.find(shortcode: params[:shortcode]).first
             status 409
             {status: "error", message: "The the desired shortcode is already in use. **Shortcodes are case-sensitive**."}.to_json
           else
             status 201
-            url = ShortUrl.create(code: params[:code], url: params[:url])
-            {shortcode: url.code}.to_json
+            url = ShortUrl.create(shortcode: params[:shortcode], url: params[:url])
+            {shortcode: url.shortcode}.to_json
           end
         else
           status 422
@@ -76,7 +75,7 @@ class ShortNatra < Sinatra::Base
       else
         status 201
         url = ShortUrl.create(url: params[:url])
-        {shortcode: url.code}.to_json
+        {shortcode: url.shortcode}.to_json
       end
     else
       status 400
@@ -85,7 +84,7 @@ class ShortNatra < Sinatra::Base
   end
 
   get '/:shortcode' do
-    url = ShortUrl.find(code: params[:shortcode]).first
+    url = ShortUrl.find(shortcode: params[:shortcode]).first
 
     if url.nil?
       content_type :json

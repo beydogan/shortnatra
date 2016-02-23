@@ -6,40 +6,40 @@ RSpec.describe ShortNatra do
   end
 
   describe "POST /shorten" do
-    context "with code param" do
-      it "returns 201 and creates ShortUrl if code and url is valid" do
-        post "/shorten", {code: "code1", url: "http://www.google.com"}
+    context "with shortcode param" do
+      it "returns 201 and creates ShortUrl if shortcode and url is valid" do
+        post "/shorten", {shortcode: "code1", url: "http://www.google.com"}
         expect(last_response.status).to eq 201
-        url = ShortUrl.find(code: "code1").first
+        url = ShortUrl.find(shortcode: "code1").first
         expect(url).not_to eq(nil)
         expect(url.url).to eq("http://www.google.com")
       end
 
-      it "returns 409 if code is already exists" do
-        ShortUrl.new(code: "code1", url: "http://www.google.com").save
-        post "/shorten", {code: "code1", url: "http://www.google.com"}
+      it "returns 409 if shortcode is already exists" do
+        ShortUrl.new(shortcode: "code1", url: "http://www.google.com").save
+        post "/shorten", {shortcode: "code1", url: "http://www.google.com"}
         expect(last_response.status).to eq 409
       end
 
-      it "returns 422 if code is invalid regex" do
-        post "/shorten", {code: "c-x", url: "http://www.google.com"}
+      it "returns 422 if shortcode is invalid regex" do
+        post "/shorten", {shortcode: "c-x", url: "http://www.google.com"}
         expect(last_response.status).to eq 422
-        url = ShortUrl.find(code: "c-x").first
+        url = ShortUrl.find(shortcode: "c-x").first
         expect(url).to eq(nil)
       end
 
       it "returns 400 if url is missing" do
-        post "/shorten", {code: "code1"}
+        post "/shorten", {shortcode: "code1"}
         expect(last_response.status).to eq 400
       end
     end
 
-    context "without code param" do
+    context "without shortcode param" do
       it "returns 201 and creates ShortUrl if url is present" do
         post "/shorten", {url: "http://www.google.com"}
         expect(last_response.status).to eq 201
-        code = JSON.parse(last_response.body)["shortcode"]
-        url = ShortUrl.find(code: code).first
+        shortcode = JSON.parse(last_response.body)["shortcode"]
+        url = ShortUrl.find(shortcode: shortcode).first
         expect(url).not_to eq(nil)
         expect(url.url).to eq("http://www.google.com")
       end
@@ -56,7 +56,7 @@ RSpec.describe ShortNatra do
       let!(:url){ ShortUrl.create(url: "http://www.google.com")}
 
       it "returns 302 and redirect" do
-        get "/#{url.code}"
+        get "/#{url.shortcode}"
         expect(last_response.status).to eq 302
         expect(last_response).to be_redirect
         follow_redirect!
@@ -65,8 +65,8 @@ RSpec.describe ShortNatra do
 
       it "updates url stats" do
         Timecop.freeze(Time.now)
-        get "/#{url.code}"
-        saved_url = ShortUrl.find(code: url.code).first
+        get "/#{url.shortcode}"
+        saved_url = ShortUrl.find(shortcode: url.shortcode).first
         expect(saved_url.redirect_count).to eq 1
         expect(saved_url.last_seen_date.to_s).to eq Time.now.to_s # using #to_s to workaround nanosecond comparison
       end

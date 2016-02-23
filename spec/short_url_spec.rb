@@ -2,26 +2,26 @@ require "spec_helper"
 
 RSpec.describe ShortUrl, type: :model do
   it do
-    expect(subject.class.attributes).to include(:code)
+    expect(subject.class.attributes).to include(:shortcode)
     expect(subject.class.attributes).to include(:url)
     expect(subject.class.attributes).to include(:start_date)
     expect(subject.class.attributes).to include(:last_seen_date)
     expect(subject.class.attributes).to include(:redirect_count)
   end
 
-  describe "code" do
-    it "generates a code if its nil" do
+  describe "shortcode" do
+    it "generates a shortcode if its nil" do
       url = ShortUrl.new
       url.save
-      expect(url.code).not_to eq nil
+      expect(url.shortcode).not_to eq nil
     end
 
     it "generates unique code" do
       allow(SecureRandom).to receive(:hex).and_return('code1', 'code1', 'code3', 'code4')
 
-      ShortUrl.create(code: "code1")
+      ShortUrl.create(shortcode: "code1")
       url = ShortUrl.create
-      expect(url.code).to eq "code3"
+      expect(url.shortcode).to eq "code3"
     end
   end
 
@@ -49,7 +49,7 @@ RSpec.describe ShortUrl, type: :model do
 
     it "saves changes" do
       url.hit!
-      saved_url = ShortUrl.find(code: url.code).first
+      saved_url = ShortUrl.find(shortcode: url.shortcode).first
       expect(saved_url.redirect_count).to eq 1
     end
   end
