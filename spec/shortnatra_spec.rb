@@ -53,10 +53,24 @@ RSpec.describe ShortNatra do
 
   describe "GET /:shortcode" do
     context "with valid shortcode" do
-      it "returns 302 redirect" do
-        pending "TODO"
+      let(:url){ ShortUrl.create(url: "http://www.google.com")}
+      before :each do
+        get "/#{url.code}"
+      end
+
+      it "returns 302 and redirect" do
+        expect(last_response.status).to eq 302
+        expect(last_response).to redirect_to "http://www.google.com"
+      end
+
+      it "updates url stats" do
+        Timecop.freeze(Time.now)
+        url = ShortUrl.find(code: url.code).first
+        expect(url.redirect_count).to eq 1
+        expect(url.last_seen_date).to eq Time.now
       end
     end
+
     context "with invalid shortcode" do
       it "returns 404 not found" do
         pending "TODO"
