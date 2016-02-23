@@ -2,6 +2,7 @@ GEM
   remote: http://rubygems.org/
   specs:
     backports (3.6.8)
+    database_cleaner (1.5.1)
     diff-lcs (1.2.5)
     ffaker (2.2.0)
     hiredis (0.6.1)
@@ -55,6 +56,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  database_cleaner
   ffaker
   ohm
   ohm-contrib
