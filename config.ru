@@ -1,4 +1,4 @@
 $:.unshift(File.dirname(__FILE__))
 
-require 'app'
+require './shortnatra.rb'
 run ShortNatra

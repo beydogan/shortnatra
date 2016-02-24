@@ -89,7 +89,7 @@ RSpec.describe ShortNatra do
           url = ShortUrl.create(url: "http://www.google.com", last_seen_date: last_seen_date, start_date: start_date, redirect_count: 5)
           get "/#{url.shortcode}/stats"
           expect(last_response.status).to eq 200
-          expect(last_response).to eq({
+          expect(last_response.body).to eq({
             "startDate": start_date.utc.iso8601.to_s,
             "lastSeenDate": last_seen_date.utc.iso8601.to_s,
             "redirectCount": 5

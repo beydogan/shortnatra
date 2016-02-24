@@ -1,6 +1,5 @@
 require 'rack/test'
-require File.expand_path '../../app.rb', __FILE__
-require File.expand_path("../../environment", __FILE__)
+require File.expand_path '../../shortnatra.rb', __FILE__
 ENV['RACK_ENV'] = 'test'
 require 'database_cleaner'
 require 'timecop'
