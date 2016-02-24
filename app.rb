@@ -4,6 +4,8 @@ require 'securerandom'
 require 'ohm'
 require 'ohm/contrib'
 require 'sinatra/json'
+require 'dotenv'
+Dotenv.load
 
 class ShortUrl < Ohm::Model
   include Ohm::DataTypes
@@ -40,7 +42,11 @@ end
 class ShortNatra < Sinatra::Base
 
   configure do
-    Ohm.redis = Redic.new("redis://127.0.0.1:6379")
+    Ohm.redis = Redic.new("redis://#{ENV["REDIS_PORT_6379_TCP_ADDR"]}:#{ENV["REDIS_PORT_6379_TCP_PORT"]}")
+    enable :logging
+    file = File.new("#{settings.root}/#{settings.environment}.log", 'a+')
+    file.sync = true
+    use Rack::CommonLogger, file
   end
 
   helpers do

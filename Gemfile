@@ -13,3 +13,7 @@ group :test do
   gem "database_cleaner"
   gem "timecop"
 end
+
+group :development, :tests do
+  gem "dotenv"
+end
