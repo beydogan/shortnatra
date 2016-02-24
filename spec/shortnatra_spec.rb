@@ -19,6 +19,7 @@ RSpec.describe ShortNatra do
         ShortUrl.new(shortcode: "code1", url: "http://www.google.com").save
         post "/shorten", {shortcode: "code1", url: "http://www.google.com"}
         expect(last_response.status).to eq 409
+        expect(last_response.body).to include("The the desired shortcode is already in use. Shortcodes are case-sensitive")
       end
 
       it "returns 422 if shortcode is invalid regex" do
@@ -26,11 +27,13 @@ RSpec.describe ShortNatra do
         expect(last_response.status).to eq 422
         url = ShortUrl.find(shortcode: "c-x").first
         expect(url).to eq(nil)
+        expect(last_response.body).to include("The shortcode fails to meet the following regexp: ^[0-9a-zA-Z_]{4,}$.")
       end
 
       it "returns 400 if url is missing" do
         post "/shorten", {shortcode: "code1"}
         expect(last_response.status).to eq 400
+        expect(last_response.body).to include("Url is not present")
       end
     end
 
@@ -47,6 +50,7 @@ RSpec.describe ShortNatra do
       it "returns 400 if url is missing" do
         post "/shorten", {}
         expect(last_response.status).to eq 400
+        expect(last_response.body).to include("Url is not present")
       end
     end
   end
@@ -93,18 +97,6 @@ RSpec.describe ShortNatra do
             "startDate": start_date.utc.iso8601.to_s,
             "redirectCount": 5,
             "lastSeenDate": last_seen_date.utc.iso8601.to_s
-          }.to_json.to_s) #convert json then string to easy comparison
-        end
-
-        it "returns shortcode stats without lastSeenDate if redirect_count is 0" do
-          start_date = Time.now - 5*60
-          last_seen_date = Time.now - 2*60
-          url = ShortUrl.create(url: "http://www.google.com", last_seen_date: last_seen_date, start_date: start_date, redirect_count: 0)
-          get "/#{url.shortcode}/stats"
-          expect(last_response.status).to eq 200
-          expect(last_response.body).to eq({
-            "startDate": start_date.utc.iso8601.to_s,
-            "redirectCount": 0,
           }.to_json.to_s) #convert json then string to easy comparison
         end
       end
