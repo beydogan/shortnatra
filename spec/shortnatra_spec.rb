@@ -91,8 +91,20 @@ RSpec.describe ShortNatra do
           expect(last_response.status).to eq 200
           expect(last_response.body).to eq({
             "startDate": start_date.utc.iso8601.to_s,
-            "lastSeenDate": last_seen_date.utc.iso8601.to_s,
-            "redirectCount": 5
+            "redirectCount": 5,
+            "lastSeenDate": last_seen_date.utc.iso8601.to_s
+          }.to_json.to_s) #convert json then string to easy comparison
+        end
+
+        it "returns shortcode stats without lastSeenDate if redirect_count is 0" do
+          start_date = Time.now - 5*60
+          last_seen_date = Time.now - 2*60
+          url = ShortUrl.create(url: "http://www.google.com", last_seen_date: last_seen_date, start_date: start_date, redirect_count: 0)
+          get "/#{url.shortcode}/stats"
+          expect(last_response.status).to eq 200
+          expect(last_response.body).to eq({
+            "startDate": start_date.utc.iso8601.to_s,
+            "redirectCount": 0,
           }.to_json.to_s) #convert json then string to easy comparison
         end
       end
