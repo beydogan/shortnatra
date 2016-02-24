@@ -24,6 +24,8 @@ bundle install
 rackup
 ```
 
+Your server will be up and running at [localhost:9292](http://localhost:9292)
+
 # Running Tests
 ShortNatra uses **Rspec** for testing. You can run tests with following command.
 
