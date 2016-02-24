@@ -13,6 +13,8 @@ ShortNatra is a simple URL Shortener API built with Sinatra and using Redis for 
 If you have all dependencies, you can set your development environment by following commands.
 
 ```
+git clone git@github.com:beydogan/shortnatra.git
+cd shortnatra
 bundle install
 ```
 
