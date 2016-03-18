@@ -36,7 +36,7 @@ class ShortNatra < Sinatra::Base
         if shortcode_valid? params[:shortcode]
           if ShortUrl.find(shortcode: params[:shortcode]).first
             status 409
-            {status: "error", message: "The the desired shortcode is already in use. **Shortcodes are case-sensitive**."}.to_json
+            {status: "error", message: "The the desired shortcode is already in use. Shortcodes are case-sensitive."}.to_json
           else
             status 201
             url = ShortUrl.create(shortcode: params[:shortcode], url: params[:url])
@@ -44,7 +44,7 @@ class ShortNatra < Sinatra::Base
           end
         else
           status 422
-          {status: "error", message: "The shortcode fails to meet the following regexp: ```^[0-9a-zA-Z_]{4,}$```."}.to_json
+          {status: "error", message: "The shortcode fails to meet the following regexp: ^[0-9a-zA-Z_]{4,}$."}.to_json
         end
       else
         status 201
@@ -53,7 +53,7 @@ class ShortNatra < Sinatra::Base
       end
     else
       status 400
-      {status: "error", message: "```url``` is not present"}.to_json
+      {status: "error", message: "Url is not present"}.to_json
     end
   end
 
@@ -65,11 +65,12 @@ class ShortNatra < Sinatra::Base
       status 404
       {status: "error", message: "The shortcode cannot be found in the system"}.to_json
     else
-      {
+      result = {
         "startDate": url.start_date,
-        "lastSeenDate": url.last_seen_date,
         "redirectCount": url.redirect_count
-      }.to_json
+      }
+      result["lastSeenDate"] = url.last_seen_date if url.redirect_count != 0
+      result.to_json
     end
   end
 

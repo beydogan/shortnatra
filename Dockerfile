@@ -1,4 +1,4 @@
-FROM ruby:2.2.1
+FROM ruby:2.2.4
 MAINTAINER Mehmet Beydogan
 
 RUN apt-get update && \
